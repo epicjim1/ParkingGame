@@ -25,12 +25,12 @@ public class ParkedDetector : MonoBehaviour
         {
             if (myCollider.bounds.Contains(other.bounds.min) && myCollider.bounds.Contains(other.bounds.max))
             {
-                Debug.Log("player fully in");
+                //Debug.Log("player fully in");
                 objRenderer.material = greenMaterial;  // Change to green material
             }
             else
             {
-                Debug.Log("player not fully in");
+                //Debug.Log("player not fully in");
             }
         }
     }

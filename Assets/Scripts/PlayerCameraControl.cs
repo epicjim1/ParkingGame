@@ -85,7 +85,7 @@ public class PlayerCameraControl : MonoBehaviour
         float scrollInput = scrollAction.ReadValue<Vector2>().y; // Get the vertical scroll value
         float zoomAmount = (scrollInput / 120) * zoomSpeed; // Calculate zoom amount
 
-        Debug.Log("Scroll Input: " + scrollInput); // Log the scroll input value
+        //Debug.Log("Scroll Input: " + scrollInput); // Log the scroll input value
 
         // Get the Framing Transposer component
         var framingTransposer = virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
