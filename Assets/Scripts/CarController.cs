@@ -45,7 +45,7 @@ public class CarController : MonoBehaviour
 
         frontRight.brakeTorque = currentBreakForce;
         frontLeft.brakeTorque = currentBreakForce;
-        backRight.motorTorque = currentBreakForce;
+        backRight.brakeTorque = currentBreakForce;
         backLeft.brakeTorque = currentBreakForce;
 
         //Take care of steering
@@ -57,7 +57,7 @@ public class CarController : MonoBehaviour
         float targetTurnAngle = maxTurnAngle * Input.GetAxis("Horizontal");
 
         // Smoothly interpolate the current steering angle to the target angle
-        currentTurnAngle = Mathf.Lerp(currentTurnAngle, targetTurnAngle, Time.deltaTime * 5f);
+        currentTurnAngle = Mathf.Lerp(currentTurnAngle, targetTurnAngle, Time.deltaTime * 15f);
 
         // Apply the smooth steering angle to the front wheels
         frontLeft.steerAngle = currentTurnAngle;
