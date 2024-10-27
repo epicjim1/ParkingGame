@@ -81,4 +81,12 @@ public class CarController : MonoBehaviour
         trans.position = position;
         trans.rotation = rotation;
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.tag == "Obstacle")
+        {
+            Debug.Log("hit");
+        }
+    }
 }
