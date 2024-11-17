@@ -1,9 +1,22 @@
+using Cinemachine.PostFX;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 public class CarController : MonoBehaviour
 {
+    public static bool GameIsPaused = false;
+    public static bool GameIsLost = false;
+    public Animator canvasAnim;
+
+    public Cinemachine.CinemachineVirtualCamera virtualCamera;
+    private VolumeProfile volume;
+    private DepthOfField depthOfField;
+    private float startingFocalLength;
+
     [SerializeField] WheelCollider frontRight;
     [SerializeField] WheelCollider frontLeft;
     [SerializeField] WheelCollider backRight;
@@ -22,52 +35,73 @@ public class CarController : MonoBehaviour
     private float currentBreakForce = 0f;
     private float currentTurnAngle = 0f;
 
-    private void FixedUpdate()
+    private void Start()
     {
-        //Get forward/reverse accleration from the vertical axis (w and s keys)
-        currentAcceleration = acceleration * Input.GetAxis("Vertical");
+        GameIsPaused = false;
+        GameIsLost = false;
 
-        //If we're presssing space, give currentBreakingForce a value
-        if (Input.GetKey(KeyCode.Space))
+        volume = virtualCamera.GetComponent<CinemachineVolumeSettings>().m_Profile;
+        if (volume != null && volume.TryGet(out depthOfField))
         {
-            currentBreakForce = breakingForce;
-            frontRight.motorTorque = 0f;
-            frontLeft.motorTorque = 0f;
+            Debug.Log("Depth of Field override found!");
         }
         else
         {
-            currentBreakForce = 0f;
-            frontRight.motorTorque = currentAcceleration;
-            frontLeft.motorTorque = currentAcceleration;
+            Debug.LogError("Depth of Field override not found in the Volume profile.");
         }
+        //depthOfField.active = false;
+        depthOfField.focalLength.value = 1f;
+        startingFocalLength = depthOfField.focalLength.value;
+    }
 
-        //Apply acceleration to front wheels
+    private void FixedUpdate()
+    {
+        if (!GameIsLost && !GameIsPaused)
+        {
+            //Get forward/reverse accleration from the vertical axis (w and s keys)
+            currentAcceleration = acceleration * Input.GetAxis("Vertical");
 
-        frontRight.brakeTorque = currentBreakForce;
-        frontLeft.brakeTorque = currentBreakForce;
-        backRight.brakeTorque = currentBreakForce;
-        backLeft.brakeTorque = currentBreakForce;
+            //If we're presssing space, give currentBreakingForce a value
+            if (Input.GetKey(KeyCode.Space))
+            {
+                currentBreakForce = breakingForce;
+                frontRight.motorTorque = 0f;
+                frontLeft.motorTorque = 0f;
+            }
+            else
+            {
+                currentBreakForce = 0f;
+                frontRight.motorTorque = currentAcceleration;
+                frontLeft.motorTorque = currentAcceleration;
+            }
 
-        //Take care of steering
-        //currentTurnAngle = maxTurnAngle * Input.GetAxis("Horizontal");
-        //frontLeft.steerAngle = currentTurnAngle;
-        //frontRight.steerAngle = currentTurnAngle;
+            //Apply acceleration to front wheels
+            frontRight.brakeTorque = currentBreakForce;
+            frontLeft.brakeTorque = currentBreakForce;
+            backRight.brakeTorque = currentBreakForce;
+            backLeft.brakeTorque = currentBreakForce;
 
-        // Smooth steering logic
-        float targetTurnAngle = maxTurnAngle * Input.GetAxis("Horizontal");
+            // Smooth steering logic
+            float targetTurnAngle = maxTurnAngle * Input.GetAxis("Horizontal");
 
-        // Smoothly interpolate the current steering angle to the target angle
-        currentTurnAngle = Mathf.Lerp(currentTurnAngle, targetTurnAngle, Time.deltaTime * 15f);
+            // Smoothly interpolate the current steering angle to the target angle
+            currentTurnAngle = Mathf.Lerp(currentTurnAngle, targetTurnAngle, Time.deltaTime * 15f);
 
-        // Apply the smooth steering angle to the front wheels
-        frontLeft.steerAngle = currentTurnAngle;
-        frontRight.steerAngle = currentTurnAngle;
+            // Apply the smooth steering angle to the front wheels
+            frontLeft.steerAngle = currentTurnAngle;
+            frontRight.steerAngle = currentTurnAngle;
 
-        //Update wheel meshes
-        UpdateWheel(frontLeft, frontLeftTransform);
-        UpdateWheel(frontRight, frontRightTransform);
-        UpdateWheel(backLeft, backLeftTransform);
-        UpdateWheel(backRight, backRightTransform);
+            //Update wheel meshes
+            UpdateWheel(frontLeft, frontLeftTransform);
+            UpdateWheel(frontRight, frontRightTransform);
+            UpdateWheel(backLeft, backLeftTransform);
+            UpdateWheel(backRight, backRightTransform);
+        }
+        else
+        {
+            frontRight.motorTorque = 0f;
+            frontLeft.motorTorque = 0f;
+        }
     }
 
     void UpdateWheel(WheelCollider col, Transform trans)
@@ -86,7 +120,56 @@ public class CarController : MonoBehaviour
     {
         if (collision.gameObject.tag == "Obstacle")
         {
-            Debug.Log("hit");
+            Crashed();
         }
+    }
+
+    void Resume ()
+    {
+        //GameIsLost = false;
+        //canvasAnim.SetTrigger("LoseSlideDown");
+
+        GameIsPaused = false;
+        //Time.timeScale = 1f;
+        canvasAnim.SetTrigger("PauseSlideDown");
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (GameIsPaused)
+            {
+                Resume();
+            }
+            else
+            {
+                Pause();
+            }
+        }
+
+        if (GameIsLost || GameIsPaused)
+        {
+            startingFocalLength = Mathf.Lerp(startingFocalLength, 13f, Time.deltaTime * 4f);
+            depthOfField.focalLength.value = startingFocalLength;
+        }
+        else
+        {
+            startingFocalLength = Mathf.Lerp(startingFocalLength, 1f, Time.deltaTime * 4f);
+            depthOfField.focalLength.value = startingFocalLength;
+        }
+    }
+
+    void Pause ()
+    {
+        GameIsPaused = true;
+        //Time.timeScale = 0f;
+        canvasAnim.SetTrigger("PauseSlideUp");
+    }
+
+    void Crashed ()
+    {
+        GameIsLost = true;
+        canvasAnim.SetTrigger("LoseSlideUp");
     }
 }
