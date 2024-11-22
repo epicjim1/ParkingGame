@@ -12,6 +12,7 @@ public class SceneTransitionController : MonoBehaviour
     [SerializeField]
     private bool shouldReveal;
     private bool goToMainMenu = false; // New flag to decide if we go to the main menu
+    private bool goToReplayLvl = false;
 
     public bool isMainMenu = false;
 
@@ -31,10 +32,10 @@ public class SceneTransitionController : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
+        /*if (Input.GetKeyDown(KeyCode.E))
         {
             shouldReveal = !shouldReveal;
-        }
+        }*/
 
         if (shouldReveal)
         {
@@ -52,7 +53,14 @@ public class SceneTransitionController : MonoBehaviour
                 }
                 else
                 {
-                    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1); // Load next level
+                    if (goToReplayLvl)
+                    {
+                        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                    }
+                    else
+                    {
+                        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1); // Load next level
+                    }
                 }
             }
         }
@@ -67,6 +75,14 @@ public class SceneTransitionController : MonoBehaviour
     public void GoToNextLevel ()
     {
         goToMainMenu = false; //not nesscary
+        goToReplayLvl = false;
+        shouldReveal = false;
+    }
+
+    public void GoToReplayLvl()
+    {
+        goToMainMenu = false;
+        goToReplayLvl = true;
         shouldReveal = false;
     }
 }
