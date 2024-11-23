@@ -1810,6 +1810,11 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 1891710600}
+    - target: {fileID: 2427481222637614621, guid: 3bee688840b15d64bb49bcfcce08ca15,
+        type: 3}
+      propertyPath: isLastLevel
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5634870359311743533, guid: 3bee688840b15d64bb49bcfcce08ca15,
         type: 3}
       propertyPath: m_Enabled
@@ -2138,6 +2143,11 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1442702620}
+    - target: {fileID: 7829381372248585573, guid: a4a3e13642636c543a4521daf0be42bd,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: GoToMainMenu
+      objectReference: {fileID: 0}
     - target: {fileID: 8907379581625203319, guid: a4a3e13642636c543a4521daf0be42bd,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target

@@ -1,14 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using TreeEditor;
+//using TreeEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Parking : MonoBehaviour
 {
     public int secondsTillWin = 3;
     public GameObject secondsTillWinText;
     private Coroutine winCoroutine = null;
+    private int nextSceneToLoad;
     private bool hasTriggeredWin = false;
 
     public GameObject unparkedChild;
@@ -20,6 +22,7 @@ public class Parking : MonoBehaviour
     void Start()
     {
         myCollider = GetComponent<BoxCollider>();
+        nextSceneToLoad = SceneManager.GetActiveScene().buildIndex + 1;
         secondsTillWinText.SetActive(false);
         unparkedChild.SetActive(true);
         parkedChild.SetActive(false);
@@ -69,6 +72,11 @@ public class Parking : MonoBehaviour
         }
 
         secondsTillWinText.SetActive(false);
+
+        if (nextSceneToLoad > PlayerPrefs.GetInt("levelAt"))
+        {
+            PlayerPrefs.SetInt("levelAt", nextSceneToLoad);
+        }
 
         canvasAnim.SetTrigger("WinSlideUp");
         CarController.GameIsPaused = true;

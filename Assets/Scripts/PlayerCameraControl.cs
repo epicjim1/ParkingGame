@@ -18,6 +18,9 @@ public class PlayerCameraControl : MonoBehaviour
     public float minZoom = 2f;     // Minimum distance from the target
     public float maxZoom = 10f;    // Maximum distance from the target
 
+    public float maxRotation = 60f;
+    public float minRotation = -30f;
+
     private Vector3 currentRotationVelocity;
     private Quaternion currentRotation;
 
@@ -69,7 +72,7 @@ public class PlayerCameraControl : MonoBehaviour
             cameraTargetRotation.y += lookInput.x * cameraSpeed * Time.deltaTime;
 
             // Optionally clamp rotation values to avoid unnatural camera behavior
-            cameraTargetRotation.x = Mathf.Clamp(cameraTargetRotation.x, -30f, 60f); // For vertical rotation
+            cameraTargetRotation.x = Mathf.Clamp(cameraTargetRotation.x, minRotation, maxRotation); // For vertical rotation
 
             // Convert the target rotation to a quaternion
             Quaternion targetRotation = Quaternion.Euler(cameraTargetRotation);

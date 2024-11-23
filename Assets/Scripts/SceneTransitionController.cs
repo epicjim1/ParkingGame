@@ -13,8 +13,12 @@ public class SceneTransitionController : MonoBehaviour
     private bool shouldReveal;
     private bool goToMainMenu = false; // New flag to decide if we go to the main menu
     private bool goToReplayLvl = false;
+    private bool goToSpecificLvl = false;
 
-    public bool isMainMenu = false;
+    public LevelSelect levelSelector;
+
+    public static bool isMainMenu = true;
+    public bool isLastLevel = false;
 
     void Start()
     {
@@ -51,16 +55,25 @@ public class SceneTransitionController : MonoBehaviour
                 {
                     SceneManager.LoadScene("StartMenu");
                 }
-                else
+                else if (goToReplayLvl)
                 {
-                    if (goToReplayLvl)
+                    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                    /*if (goToReplayLvl)
                     {
                         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
                     }
-                    else
+                    else if (!isLastLevel)
                     {
                         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1); // Load next level
-                    }
+                    }*/
+                } 
+                else if (goToSpecificLvl)
+                {
+                    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + levelSelector.currentLevelIndex + 1);
+                }
+                else if (!isLastLevel)
+                {
+                    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1); // Load next level
                 }
             }
         }
@@ -77,12 +90,21 @@ public class SceneTransitionController : MonoBehaviour
         goToMainMenu = false; //not nesscary
         goToReplayLvl = false;
         shouldReveal = false;
+        SceneTransitionController.isMainMenu = false;
     }
 
     public void GoToReplayLvl()
     {
         goToMainMenu = false;
         goToReplayLvl = true;
+        shouldReveal = false;
+    }
+
+    public void GoToSpecificLevel()
+    {
+        goToMainMenu = false;
+        goToReplayLvl = false;
+        goToSpecificLvl = true;
         shouldReveal = false;
     }
 }
