@@ -1,6 +1,7 @@
 using Cinemachine.PostFX;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -8,6 +9,9 @@ using UnityEngine.Rendering.Universal;
 
 public class CarController : MonoBehaviour
 {
+    private int retryCount = 0;
+    public TMP_Text retryCountText;
+
     public static bool GameIsPaused = false;
     public static bool GameIsLost = false;
     public Animator canvasAnim;
@@ -39,6 +43,8 @@ public class CarController : MonoBehaviour
     {
         GameIsPaused = false;
         GameIsLost = false;
+
+        retryCount = PlayerPrefs.GetInt("RetryCount", 0);
 
         volume = virtualCamera.GetComponent<CinemachineVolumeSettings>().m_Profile;
         if (volume != null && volume.TryGet(out depthOfField))
@@ -124,16 +130,6 @@ public class CarController : MonoBehaviour
         }
     }
 
-    void Resume ()
-    {
-        //GameIsLost = false;
-        //canvasAnim.SetTrigger("LoseSlideDown");
-
-        GameIsPaused = false;
-        //Time.timeScale = 1f;
-        canvasAnim.SetTrigger("PauseSlideDown");
-    }
-
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -160,15 +156,25 @@ public class CarController : MonoBehaviour
         }
     }
 
-    void Pause ()
+    public void Resume()
+    {
+        GameIsPaused = false;
+        //Time.timeScale = 1f;
+        canvasAnim.SetTrigger("PauseSlideDown");
+    }
+
+    public void Pause ()
     {
         GameIsPaused = true;
         //Time.timeScale = 0f;
         canvasAnim.SetTrigger("PauseSlideUp");
+        retryCountText.text = "Retry Count: " + retryCount;
     }
 
-    void Crashed ()
+    public void Crashed ()
     {
+        retryCount += 1;
+        PlayerPrefs.SetInt("RetryCount", retryCount);
         GameIsLost = true;
         canvasAnim.SetTrigger("LoseSlideUp");
     }
