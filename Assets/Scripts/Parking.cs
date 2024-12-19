@@ -32,8 +32,10 @@ public class Parking : MonoBehaviour
     {
         if (other.tag == "Player" && !hasTriggeredWin)
         {
-            if (myCollider.bounds.Contains(other.bounds.min) && myCollider.bounds.Contains(other.bounds.max))
+            //if (myCollider.bounds.Contains(other.bounds.min) && myCollider.bounds.Contains(other.bounds.max))
+            if (IsFullyInside(other.bounds, myCollider.bounds))
             {
+                Debug.Log("cars inside");
                 unparkedChild.SetActive(false);
                 parkedChild.SetActive(true);
 
@@ -82,5 +84,34 @@ public class Parking : MonoBehaviour
         CarController.GameIsPaused = true;
         winCoroutine = null; // Reset the coroutine reference after completion
         hasTriggeredWin = true;
+    }
+
+    bool IsFullyInside(Bounds innerBounds, Bounds outerBounds)
+    {
+        // Get all 8 corners of the inner bounds
+        Vector3[] corners = new Vector3[8];
+
+        Vector3 min = innerBounds.min;
+        Vector3 max = innerBounds.max;
+
+        corners[0] = new Vector3(min.x, min.y, min.z); // Bottom-front-left
+        corners[1] = new Vector3(min.x, min.y, max.z); // Bottom-front-right
+        corners[2] = new Vector3(min.x, max.y, min.z); // Top-front-left
+        corners[3] = new Vector3(min.x, max.y, max.z); // Top-front-right
+        corners[4] = new Vector3(max.x, min.y, min.z); // Bottom-back-left
+        corners[5] = new Vector3(max.x, min.y, max.z); // Bottom-back-right
+        corners[6] = new Vector3(max.x, max.y, min.z); // Top-back-left
+        corners[7] = new Vector3(max.x, max.y, max.z); // Top-back-right
+
+        // Check if all corners are inside the outer bounds
+        foreach (var corner in corners)
+        {
+            if (!outerBounds.Contains(corner))
+            {
+                return false; // If any corner is outside, return false
+            }
+        }
+
+        return true; // All corners are inside
     }
 }
